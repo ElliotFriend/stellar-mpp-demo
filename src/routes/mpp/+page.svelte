@@ -1,12 +1,11 @@
 <script lang="ts">
-    import type { PageProps } from './$types';
     import { user } from '$lib/state/UserState.svelte';
     import { Keypair } from '@stellar/stellar-sdk';
     import { Mppx } from 'mppx/client';
     import { stellar } from '@stellar/mpp/charge/client';
+    import { resolve } from '$app/paths';
 
-    let { params }: PageProps = $props();
-    const mppMode = $derived(params.mode as 'push' | 'pull');
+    let mppMode = $state<'pull' | 'push'>('pull');
 
     type StepKind =
         | 'request'
@@ -24,7 +23,7 @@
         ts: number;
     }
 
-    let endpoint = $state<'quotes' | 'recipes'>('quotes');
+    let endpoint = $state<'quotes' | 'recipes' | 'posts'>('quotes');
     let flowSteps: FlowStep[] = $state([]);
     let resultData: unknown[] = $state([]);
     let receiptHeader = $state('');
@@ -80,7 +79,7 @@
 
         try {
             const res = await mppx.fetch(url);
-            addStep('settling', `Server verifying & settling payment`);
+            addStep('settling', 'Server verifying & settling payment');
 
             receiptHeader = res.headers.get('x-payment-receipt') ?? '';
             if (receiptHeader) {
@@ -116,7 +115,7 @@
 
 <div class="space-y-8">
     <div>
-        <div class="text-sm font-medium text-amber-600">Paid Endpoint &middot; {mppMode} mode</div>
+        <div class="text-sm font-medium text-amber-600">Paid Endpoint</div>
         <h1 class="text-2xl font-bold tracking-tight">Paid API Demo</h1>
         <p class="mt-1 text-sm text-gray-500">
             Request a paid resource and watch the MPP protocol in action. The server returns HTTP
@@ -128,10 +127,45 @@
     {#if !hasAccount}
         <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
             You need a funded Stellar account with USDC to use this demo.
-            <a href="/account" class="font-medium text-amber-900 underline">Set up your account</a> first.
+            <a href={resolve('/account')} class="font-medium text-amber-900 underline"
+                >Set up your account</a
+            > first.
         </div>
     {:else}
         <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-3">
+                <span class="text-sm font-medium text-gray-700">Mode</span>
+                <button
+                    onclick={() => (mppMode = mppMode === 'pull' ? 'push' : 'pull')}
+                    class="relative inline-flex h-7 w-[5.5rem] shrink-0 cursor-pointer items-center rounded-full border border-gray-300 bg-gray-100 transition-colors"
+                    role="switch"
+                    aria-checked={mppMode === 'push'}
+                >
+                    <span
+                        class="absolute left-0.5 h-6 w-10 rounded-full bg-indigo-600 transition-transform {mppMode ===
+                        'push'
+                            ? 'translate-x-[calc(100%-0.125rem)]'
+                            : ''}"
+                    ></span>
+                    <span
+                        class="relative z-10 w-1/2 text-center text-xs font-medium transition-colors {mppMode ===
+                        'pull'
+                            ? 'text-white'
+                            : 'text-gray-500'}"
+                    >
+                        Pull
+                    </span>
+                    <span
+                        class="relative z-10 w-1/2 text-center text-xs font-medium transition-colors {mppMode ===
+                        'push'
+                            ? 'text-white'
+                            : 'text-gray-500'}"
+                    >
+                        Push
+                    </span>
+                </button>
+            </div>
+
             <div class="flex items-center gap-2">
                 <label for="endpoint-select" class="text-sm font-medium text-gray-700"
                     >Endpoint</label
@@ -143,6 +177,7 @@
                 >
                     <option value="quotes">Quotes</option>
                     <option value="recipes">Recipes</option>
+                    <option value="posts">Posts</option>
                 </select>
             </div>
 
@@ -210,7 +245,7 @@
                                 </div>
                             </div>
                         {/each}
-                    {:else}
+                    {:else if endpoint === 'recipes'}
                         {#each resultData.slice(0, 4) as item, i (i)}
                             {@const recipe = item as {
                                 id: number;
@@ -247,10 +282,31 @@
                                 </div>
                             </div>
                         {/each}
+                    {:else}
+                        {#each resultData.slice(0, 6) as item, i (i)}
+                            {@const post = item as {
+                                id: number;
+                                title: string;
+                                body: string;
+                                tags: string[];
+                            }}
+                            <div class="rounded-lg border border-gray-200 bg-white p-4">
+                                <h3 class="font-medium text-gray-900">{post.title}</h3>
+                                <p class="mt-1 line-clamp-2 text-sm text-gray-500">{post.body}</p>
+                                <div class="mt-2 flex gap-2">
+                                    {#each post.tags as tag (tag)}
+                                        <span
+                                            class="rounded-full bg-gray-100 px-2 py-0.5 text-xs text-gray-600"
+                                            >{tag}</span
+                                        >
+                                    {/each}
+                                </div>
+                            </div>
+                        {/each}
                     {/if}
-                    {#if resultData.length > (endpoint === 'quotes' ? 6 : 4)}
+                    {#if resultData.length > 6}
                         <p class="text-xs text-gray-400">
-                            Showing {endpoint === 'quotes' ? 6 : 4} of {resultData.length} items
+                            Showing 6 of {resultData.length} items
                         </p>
                     {/if}
                 </div>
