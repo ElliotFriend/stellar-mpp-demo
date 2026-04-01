@@ -1,0 +1,25 @@
+diff --git a/dist/charge/client/Charge.js b/dist/charge/client/Charge.js
+index c2c4027a123254fde1bd045092ba2e933240e222..774a2556af8313e0d7c2398f585722049deb678b 100644
+--- a/dist/charge/client/Charge.js
++++ b/dist/charge/client/Charge.js
+@@ -103,8 +103,9 @@ export function charge(parameters) {
+                 onProgress?.({ type: 'signing' });
+                 // Sign only the Soroban authorization entries — do NOT sign the
+                 // transaction envelope (the server will do that after rebuilding).
+-                const envelope = prepared.toEnvelope().v1();
+-                for (const op of envelope.tx().operations()) {
++                const envelope = prepared.toEnvelope();
++                const v1 = envelope.v1();
++                for (const op of v1.tx().operations()) {
+                     const body = op.body();
+                     if (body.switch().value !== StellarXdr.OperationType.invokeHostFunction().value) {
+                         continue;
+@@ -118,7 +119,7 @@ export function charge(parameters) {
+                         }
+                     }
+                 }
+-                const signedXdr = prepared.toEnvelope().toXDR('base64');
++                const signedXdr = envelope.toXDR('base64');
+                 onProgress?.({ type: 'signed', transaction: signedXdr });
+                 const source = `did:pkh:${network}:${keypair.publicKey()}`;
+                 return Credential.serialize({

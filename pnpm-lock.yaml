@@ -4,19 +4,24 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  '@stellar/mpp@0.3.0':
+    hash: 1f4676133fe8874da4c9594ce42e9c09940c3e7663e1cb64afc0dcad44b05d13
+    path: patches/@stellar__mpp@0.3.0.patch
+
 importers:
 
   .:
     dependencies:
       '@stellar/mpp':
         specifier: ^0.3.0
-        version: 0.3.0(@stellar/stellar-sdk@14.6.1)(mppx@0.4.12(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(express@5.2.1)(hono@4.12.9)(openapi-types@12.1.3)(typescript@5.9.3)(viem@2.47.6(typescript@5.9.3)(zod@4.3.6)))
+        version: 0.3.0(patch_hash=1f4676133fe8874da4c9594ce42e9c09940c3e7663e1cb64afc0dcad44b05d13)(@stellar/stellar-sdk@14.6.1)(mppx@0.4.11(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(express@5.2.1)(hono@4.12.9)(openapi-types@12.1.3)(typescript@5.9.3)(viem@2.47.6(typescript@5.9.3)(zod@4.3.6)))
       '@stellar/stellar-sdk':
-        specifier: ^14.6.1
+        specifier: 14.6.1
         version: 14.6.1
       mppx:
-        specifier: ^0.4.11
-        version: 0.4.12(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(express@5.2.1)(hono@4.12.9)(openapi-types@12.1.3)(typescript@5.9.3)(viem@2.47.6(typescript@5.9.3)(zod@4.3.6))
+        specifier: 0.4.11
+        version: 0.4.11(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(express@5.2.1)(hono@4.12.9)(openapi-types@12.1.3)(typescript@5.9.3)(viem@2.47.6(typescript@5.9.3)(zod@4.3.6))
     devDependencies:
       '@eslint/compat':
         specifier: ^2.0.3
@@ -1753,8 +1758,8 @@ packages:
     resolution: {integrity: sha512-KZxYo1BUkWD2TVFLr0MQoM8vUUigWD3LlD83a/75BqC+4qE0Hb1Vo5v1FgcfaNXvfXzr+5EhQ6ing/CaBijTlw==}
     engines: {node: '>= 18'}
 
-  mppx@0.4.12:
-    resolution: {integrity: sha512-qN84ijeWcm+agw+ne+xxcMJhEw3+LJGyNxTnOQePyOrubXdPiI6duMdwNL796FXjsLMm8HizATOZBWw+qBGaMA==}
+  mppx@0.4.11:
+    resolution: {integrity: sha512-IjXz5HYqBfwyaDZrtJaMpdROBJBdEPxeSx8yVnaIEagYpsAVqrfvdmKInhitsvkM8kHGYLWjGZFnrbIFJTQ90A==}
     hasBin: true
     peerDependencies:
       '@modelcontextprotocol/sdk': '>=1.25.0'
@@ -2783,10 +2788,10 @@ snapshots:
 
   '@stellar/js-xdr@3.1.2': {}
 
-  '@stellar/mpp@0.3.0(@stellar/stellar-sdk@14.6.1)(mppx@0.4.12(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(express@5.2.1)(hono@4.12.9)(openapi-types@12.1.3)(typescript@5.9.3)(viem@2.47.6(typescript@5.9.3)(zod@4.3.6)))':
+  '@stellar/mpp@0.3.0(patch_hash=1f4676133fe8874da4c9594ce42e9c09940c3e7663e1cb64afc0dcad44b05d13)(@stellar/stellar-sdk@14.6.1)(mppx@0.4.11(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(express@5.2.1)(hono@4.12.9)(openapi-types@12.1.3)(typescript@5.9.3)(viem@2.47.6(typescript@5.9.3)(zod@4.3.6)))':
     dependencies:
       '@stellar/stellar-sdk': 14.6.1
-      mppx: 0.4.12(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(express@5.2.1)(hono@4.12.9)(openapi-types@12.1.3)(typescript@5.9.3)(viem@2.47.6(typescript@5.9.3)(zod@4.3.6))
+      mppx: 0.4.11(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(express@5.2.1)(hono@4.12.9)(openapi-types@12.1.3)(typescript@5.9.3)(viem@2.47.6(typescript@5.9.3)(zod@4.3.6))
       zod: 4.3.6
 
   '@stellar/stellar-base@14.1.0':
@@ -3826,7 +3831,7 @@ snapshots:
     dependencies:
       minipass: 7.1.3
 
-  mppx@0.4.12(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(express@5.2.1)(hono@4.12.9)(openapi-types@12.1.3)(typescript@5.9.3)(viem@2.47.6(typescript@5.9.3)(zod@4.3.6)):
+  mppx@0.4.11(@modelcontextprotocol/sdk@1.29.0(zod@4.3.6))(express@5.2.1)(hono@4.12.9)(openapi-types@12.1.3)(typescript@5.9.3)(viem@2.47.6(typescript@5.9.3)(zod@4.3.6)):
     dependencies:
       '@remix-run/fetch-proxy': 0.7.1
       '@remix-run/node-fetch-server': 0.13.0
