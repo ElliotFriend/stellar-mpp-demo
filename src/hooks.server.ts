@@ -20,16 +20,18 @@ export const handle: Handle = async ({ event, resolve }) => {
         const isPushMode = event.url.pathname.includes('push');
 
         if (isPullMode || isPushMode) {
-            let feePayer
             // figure out if we're sponsoring fees
-            if (isPushMode) {
-                feePayer = undefined;
-            } else {
-                feePayer = {
-                    envelopeSigner: Keypair.fromSecret(ENVELOPE_SIGNER_SECRET),
-                    feeBumpSigner: Keypair.fromSecret(FEE_PAYER_SECRET),
+            let feePayer = undefined;
+            if (isPullMode) {
+                const sponsoredParam = event.url.searchParams.get('sponsored');
+                if (sponsoredParam !== 'false') {
+                    feePayer = {
+                        envelopeSigner: Keypair.fromSecret(ENVELOPE_SIGNER_SECRET),
+                        feeBumpSigner: Keypair.fromSecret(FEE_PAYER_SECRET),
+                    };
                 }
             }
+
             // Initialize the MPP server
             const mppx = Mppx.create({
                 secretKey: MPP_SECRET_KEY,

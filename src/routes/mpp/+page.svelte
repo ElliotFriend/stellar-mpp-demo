@@ -26,6 +26,7 @@
     }
 
     let endpoint = $state<'quotes' | 'recipes' | 'posts'>('quotes');
+    let sponsored = $state(true);
     let flowSteps: FlowStep[] = $state([]);
     let resultData: unknown[] = $state([]);
     let isLoading = $state(false);
@@ -79,7 +80,8 @@
             ],
         });
 
-        const url = `/api/paid/${mppMode}/${endpoint}`;
+        const params = !sponsored && mppMode === 'pull' ? '?sponsored=false' : '';
+        const url = `/api/paid/${mppMode}/${endpoint}${params}`;
         addStep('request', `GET ${url}`);
 
         try {
@@ -179,6 +181,17 @@
                     </span>
                 </button>
             </div>
+
+            {#if mppMode === 'pull'}
+                <label class="flex items-center gap-2 text-sm text-gray-700">
+                    <input
+                        type="checkbox"
+                        bind:checked={sponsored}
+                        class="rounded border-gray-300 text-indigo-600"
+                    />
+                    Sponsor fees
+                </label>
+            {/if}
 
             <div class="flex items-center gap-2">
                 <label for="endpoint-select" class="text-sm font-medium text-gray-700"
