@@ -1,169 +1,95 @@
-// import { sequence } from '@sveltejs/kit/hooks';
-// import type { Handle } from '@sveltejs/kit';
-// import {
-//     create402Response,
-//     extractPaymentPayload,
-//     SvelteKitAdapter,
-//     verifyAndBuildPaymentInfo,
-//     handleSettlement,
-//     ErrorMessages,
-// } from 'x402-sveltekit';
-// import { ExactStellarScheme } from '@x402/stellar/exact/server';
-// import { HTTPFacilitatorClient } from '@x402/core/http';
-// import { x402ResourceServer } from '@x402/core/server';
-// import type { Network } from '@x402/core/types';
-// import { env } from '$env/dynamic/private';
-// import { endpoints } from '$lib/config/endpoints';
-// import { NETWORK_COOKIE_NAME, getNetworkFromCookie, VALID_NETWORKS } from '$lib/config/network';
-// import type { StellarNetwork } from '$lib/config/network';
-// import { getNetworkConfig } from '$lib/server/config/network';
+import { type Handle } from '@sveltejs/kit';
+import {
+    MPP_SECRET_KEY,
+    STELLAR_RECIPIENT,
+    FEE_PAYER_SECRET,
+    ENVELOPE_SIGNER_SECRET,
+} from '$env/static/private';
 
-// const payTo = env.PAYTO_ADDRESS;
-// const bypassSecret = env.BYPASS_PAYMENT_SECRET;
+import { Mppx, stellar } from '@stellar/mpp/charge/server';
+import { USDC_SAC_TESTNET } from '@stellar/mpp';
+import { Keypair } from '@stellar/stellar-sdk';
 
-// function createResourceServer(network: StellarNetwork) {
-//     const config = getNetworkConfig(network);
-//     const facilitatorClient = new HTTPFacilitatorClient({
-//         url: config.facilitatorUrl,
-//         ...(config.facilitatorApiKey && {
-//             createAuthHeaders: async () => {
-//                 const bearer = { Authorization: `Bearer ${config.facilitatorApiKey}` };
-//                 return { verify: bearer, settle: bearer, supported: bearer };
-//             },
-//         }),
-//     });
+// Initialize the MPP server
+const mppx = Mppx.create({
+    secretKey: MPP_SECRET_KEY,
+    methods: [
+        stellar.charge({
+            recipient: STELLAR_RECIPIENT,
+            currency: USDC_SAC_TESTNET,
+            network: 'stellar:testnet',
+            feePayer: {
+                envelopeSigner: Keypair.fromSecret(ENVELOPE_SIGNER_SECRET),
+                feeBumpSigner: Keypair.fromSecret(FEE_PAYER_SECRET),
+            },
+        }),
+    ],
+});
 
-//     const server = new x402ResourceServer(facilitatorClient);
-//     server.register('stellar:*', new ExactStellarScheme());
-//     return server;
-// }
+export const handle: Handle = async ({ event, resolve }) => {
+    // Before anything else, make sure it's a paid endpoint
+    const isPaidPath = event.url.pathname.startsWith('/api/paid');
 
-// const resourceServers = new Map(
-//     VALID_NETWORKS.map((network) => [network, createResourceServer(network)]),
-// );
+    if (isPaidPath) {
+        // First, route to the appropriate MPP mode
+        const isPullMode = event.url.pathname.startsWith('/api/paid/pull');
+        const isPushMode = event.url.pathname.startsWith('/api/paid/push');
 
-// const initialized = new Set<StellarNetwork>();
+        if (isPullMode || isPushMode) {
+            const result = await mppx.charge({
+                amount: '0.025',
+                description: 'Eff you, pay me!',
+            })(event.request);
 
-// async function ensureInitialized(network: StellarNetwork) {
-//     if (initialized.has(network)) return;
+            if (result.status === 402) {
+                // console.log('we are here in 402-land')
+                return result.challenge;
+            }
 
-//     const server = resourceServers.get(network)!;
-//     try {
-//         await server.initialize();
-//         initialized.add(network);
-//     } catch (err) {
-//         console.error(`Failed to initialize x402 resource server for ${network}:`, err);
-//         throw err;
-//     }
-// }
+            // console.log('do i get seen?')
+            // console.log(result.status)
 
-// const dynamicRoutes = new Map(
-//     endpoints.map((ep) => [
-//         ep.path,
-//         {
-//             accepts: (event: { cookies: { get: (name: string) => string | undefined } }) => {
-//                 const network = getNetworkFromCookie(
-//                     event.cookies.get(NETWORK_COOKIE_NAME),
-//                 ) as Network;
-//                 return [{ scheme: 'exact' as const, network, payTo, price: ep.price }];
-//             },
-//             description: ep.description,
-//         },
-//     ]),
-// );
+            const response = await resolve(event);
+            return result.withReceipt(response);
+            // const mode = isPushMode ? 'push' : 'pull';
 
-// // Custom dynamic route handler that properly awaits async createPaymentRequiredResponse.
-// // This works around a bug in x402-sveltekit@0.1.8 where the library doesn't await
-// // the (now-async) createPaymentRequiredResponse from @x402/core@2.7.0.
-// const x402Handle: Handle = async ({ event, resolve }) => {
-//     if (event.request.method !== 'GET') return resolve(event);
+            // do some Node.js to Web Request conversion
+            // const headers = new Headers();
+            // for (const [key, value] of Object.entries(event.request.headers)) {
+            //     if (value == null) continue;
+            //     if (Array.isArray(value)) {
+            //         for (const entry of value) {
+            //             headers.append(key, entry);
+            //         }
+            //     } else {
+            //         headers.set(key, value);
+            //     }
+            // }
+            // const authHeader = event.request.headers.get('Authorization')
 
-//     const dynamicConfig = dynamicRoutes.get(event.url.pathname);
-//     if (!dynamicConfig) return resolve(event);
+            // // auth header doesn't exist, issue a challenge
+            // if (!authHeader || !authHeader.startsWith('Payment ')) {
+            //     // const webReq = new Request(event.url, {
+            //     //     method: event.request.method,
 
-//     const network = getNetworkFromCookie(event.cookies.get(NETWORK_COOKIE_NAME));
-//     await ensureInitialized(network);
-//     const resourceServer = resourceServers.get(network)!;
+            //     // })
+            //     const result = await mppx.charge({
+            //         amount: "0.01",
+            //         description: "Paid API Access",
+            //     })(event.request);
 
-//     const clonedRequest = event.request.clone();
-//     const eventForAccepts = new Proxy(event, {
-//         get(target, prop) {
-//             if (prop === 'request') return clonedRequest;
-//             return Reflect.get(target, prop);
-//         },
-//     });
+            //     if (result.status === 402) {
+            //         return result.challenge
+            //     }
 
-//     const paymentOptions = await dynamicConfig.accepts(eventForAccepts);
-//     if (paymentOptions === null || paymentOptions.length === 0) {
-//         return resolve(event);
-//     }
+            //     // return result.withReceipt(await resolve(event))
+            // } else {
+            //     // verify and stuff, i think?
 
-//     const adapter = new SvelteKitAdapter(event);
-//     const requirements = await resourceServer.buildPaymentRequirementsFromOptions(paymentOptions, {
-//         adapter,
-//         path: event.url.pathname,
-//         method: event.request.method,
-//     });
+            // }
+        }
+    }
 
-//     const resourceInfo = {
-//         url: event.url.href,
-//         description: dynamicConfig.description ?? '',
-//         mimeType: 'application/json',
-//     };
-
-//     let paymentPayload;
-//     try {
-//         paymentPayload = extractPaymentPayload(event);
-//     } catch {
-//         return create402Response(
-//             await resourceServer.createPaymentRequiredResponse(
-//                 requirements,
-//                 resourceInfo,
-//                 ErrorMessages.INVALID_SIGNATURE_HEADER,
-//             ),
-//         );
-//     }
-
-//     if (!paymentPayload) {
-//         return create402Response(
-//             await resourceServer.createPaymentRequiredResponse(requirements, resourceInfo),
-//         );
-//     }
-
-//     const result = await verifyAndBuildPaymentInfo(
-//         resourceServer,
-//         paymentPayload,
-//         requirements,
-//         resourceInfo,
-//     );
-
-//     if (!result.ok) {
-//         return result.response;
-//     }
-
-//     const paymentInfo = { ...result.paymentInfo };
-//     event.locals.x402 = paymentInfo;
-
-//     const response = await resolve(event);
-//     if (response.status >= 200 && response.status < 300) {
-//         return handleSettlement(
-//             resourceServer,
-//             paymentPayload,
-//             result.matchedReq,
-//             response,
-//             paymentInfo,
-//             console,
-//         );
-//     }
-
-//     return response;
-// };
-
-// const bypassHandle: Handle = async ({ event, resolve }) => {
-//     if (bypassSecret && event.url.searchParams.get('bypass') === bypassSecret) {
-//         return resolve(event);
-//     }
-//     return x402Handle({ event, resolve });
-// };
-
-// export const handle = sequence(bypassHandle);
+    const response = await resolve(event);
+    return response;
+};

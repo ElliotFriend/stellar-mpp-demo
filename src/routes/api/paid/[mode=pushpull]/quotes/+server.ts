@@ -10,6 +10,6 @@ interface Quote {
 const DUMMY_JSON_URL = 'https://dummyjson.com/quotes';
 
 export const GET: RequestHandler = async ({ fetch }) => {
-    const quotes: Quote[] = await (await fetch(DUMMY_JSON_URL)).json();
+    const { quotes }: { quotes: Quote[] } = await (await fetch(DUMMY_JSON_URL)).json();
     return json(quotes);
 };
