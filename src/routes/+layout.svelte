@@ -10,7 +10,6 @@
         { href: '/', label: 'Home' },
         { href: '/free', label: 'Free API' },
         { href: '/mpp', label: 'Paid API' },
-        { href: '/account', label: 'Account' },
     ] as const;
 </script>
 
@@ -39,6 +38,16 @@
                     </a>
                 {/each}
             </div>
+            <a
+                href={resolve('/account')}
+                class="ml-auto text-sm font-medium no-underline transition-colors {page.url.pathname.startsWith(
+                    '/account',
+                )
+                    ? 'text-indigo-600'
+                    : 'text-gray-500 hover:text-gray-900'}"
+            >
+                Account
+            </a>
         </div>
     </nav>
 

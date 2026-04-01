@@ -149,6 +149,21 @@
         </div>
     {:else}
         <div class="flex flex-wrap items-center gap-4">
+            <div class="flex items-center gap-2">
+                <label for="endpoint-select" class="text-sm font-medium text-gray-700"
+                    >Endpoint</label
+                >
+                <select
+                    id="endpoint-select"
+                    bind:value={endpoint}
+                    class="rounded-md border-gray-300 text-sm"
+                >
+                    <option value="quotes">Quotes</option>
+                    <option value="recipes">Recipes</option>
+                    <option value="posts">Posts</option>
+                </select>
+            </div>
+
             <div class="flex items-center gap-3">
                 <span class="text-sm font-medium text-gray-700">Mode</span>
                 <button
@@ -183,7 +198,10 @@
             </div>
 
             {#if mppMode === 'pull'}
-                <label class="flex items-center gap-2 text-sm text-gray-700">
+                <label
+                    class="flex items-center gap-2 text-sm text-gray-700"
+                    title="When enabled, the server pays Stellar network fees on behalf of the client. When disabled, the client includes fees in its own transaction."
+                >
                     <input
                         type="checkbox"
                         bind:checked={sponsored}
@@ -193,29 +211,15 @@
                 </label>
             {/if}
 
-            <div class="flex items-center gap-2">
-                <label for="endpoint-select" class="text-sm font-medium text-gray-700"
-                    >Endpoint</label
-                >
-                <select
-                    id="endpoint-select"
-                    bind:value={endpoint}
-                    class="rounded-md border-gray-300 text-sm"
-                >
-                    <option value="quotes">Quotes</option>
-                    <option value="recipes">Recipes</option>
-                    <option value="posts">Posts</option>
-                </select>
-            </div>
-
             <button
                 onclick={makeRequest}
                 disabled={isLoading}
-                class="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+                class="ml-auto w-36 rounded-md bg-indigo-600 px-4 py-2 text-center text-sm font-medium text-white transition-colors hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
                 {isLoading ? 'Processing...' : 'Fetch Resource'}
             </button>
         </div>
+        <hr />
 
         {#if flowSteps.length > 0}
             <div class="rounded-lg border border-gray-200 bg-white p-5">
