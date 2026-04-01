@@ -2,6 +2,7 @@
     import { user } from '$lib/state/UserState.svelte';
     import { Keypair } from '@stellar/stellar-sdk';
     import { Mppx } from 'mppx/client';
+    import { Receipt } from 'mppx';
     import { stellar } from '@stellar/mpp/charge/client';
     import { resolve } from '$app/paths';
 
@@ -20,24 +21,28 @@
         kind: StepKind;
         label: string;
         detail?: string;
+        link?: { href: string; text: string };
         ts: number;
     }
 
     let endpoint = $state<'quotes' | 'recipes' | 'posts'>('quotes');
     let flowSteps: FlowStep[] = $state([]);
     let resultData: unknown[] = $state([]);
-    let receiptHeader = $state('');
     let isLoading = $state(false);
     let hasAccount = $derived(!!user.secretKey);
 
-    function addStep(kind: StepKind, label: string, detail?: string) {
-        flowSteps.push({ kind, label, detail, ts: Date.now() });
+    function addStep(
+        kind: StepKind,
+        label: string,
+        detail?: string,
+        link?: { href: string; text: string },
+    ) {
+        flowSteps.push({ kind, label, detail, link, ts: Date.now() });
     }
 
     async function makeRequest() {
         flowSteps = [];
         resultData = [];
-        receiptHeader = '';
         isLoading = true;
 
         if (!user.secretKey) return;
@@ -81,9 +86,18 @@
             const res = await mppx.fetch(url);
             addStep('settling', 'Server verifying & settling payment');
 
-            receiptHeader = res.headers.get('x-payment-receipt') ?? '';
-            if (receiptHeader) {
-                addStep('receipt', 'Payment receipt received', receiptHeader.slice(0, 60) + '...');
+            const receiptRaw = res.headers.get('payment-receipt') ?? '';
+            if (receiptRaw) {
+                try {
+                    const receipt = Receipt.deserialize(receiptRaw);
+                    const txHash = receipt.reference;
+                    addStep('receipt', 'Payment settled', `tx: ${txHash.slice(0, 12)}...`, {
+                        href: `https://stellar.expert/explorer/testnet/tx/${txHash}`,
+                        text: 'View on Stellar Expert',
+                    });
+                } catch {
+                    addStep('receipt', 'Payment receipt received', receiptRaw.slice(0, 60) + '...');
+                }
             }
 
             if (!res.ok) {
@@ -207,6 +221,16 @@
                                 <div class="text-sm font-medium text-gray-900">{step.label}</div>
                                 {#if step.detail}
                                     <div class="text-xs break-all text-gray-500">{step.detail}</div>
+                                {/if}
+                                {#if step.link}
+                                    <a
+                                        href={step.link.href}
+                                        target="_blank"
+                                        rel="external noopener noreferrer"
+                                        class="mt-0.5 inline-block text-xs font-medium text-indigo-600 underline"
+                                    >
+                                        {step.link.text} &rarr;
+                                    </a>
                                 {/if}
                             </div>
                         </li>
