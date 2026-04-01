@@ -208,7 +208,7 @@
             <div class="rounded-lg border border-gray-200 bg-white p-5">
                 <h2 class="mb-4 text-sm font-semibold text-gray-700">Protocol Flow</h2>
                 <ol class="space-y-3">
-                    {#each flowSteps as step, i (step.ts)}
+                    {#each flowSteps as step, i (`stepKey${i}`)}
                         <li class="flex items-start gap-3">
                             <span
                                 class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-xs font-bold {stepStyles[
