@@ -1,5 +1,3 @@
 onlyBuiltDependencies:
-    - esbuild
-    - '@tailwindcss/oxide'
-patchedDependencies:
-    '@stellar/mpp@0.3.0': patches/@stellar__mpp@0.3.0.patch
+  - esbuild
+  - '@tailwindcss/oxide'
