@@ -1,42 +1,52 @@
 import type { RequestHandler } from './$types';
+import { error } from '@sveltejs/kit';
 import Anthropic from '@anthropic-ai/sdk';
 import { ANTHROPIC_API_KEY } from '$env/static/private';
 
 const client = new Anthropic({ apiKey: ANTHROPIC_API_KEY });
 
+const MAX_MESSAGES = 20;
+const MAX_BODY_BYTES = 32_768; // 32 KB
+
+const emptySchema = {
+    type: 'object' as const,
+    properties: {},
+    additionalProperties: false,
+};
+
 const tools: Anthropic.Tool[] = [
     {
         name: 'get_random_quote',
         description: 'Get a single random quote. Free — no payment required.',
-        input_schema: { type: 'object' as const, properties: {} },
+        input_schema: emptySchema,
     },
     {
         name: 'get_random_recipe',
         description: 'Get a single random recipe. Free — no payment required.',
-        input_schema: { type: 'object' as const, properties: {} },
+        input_schema: emptySchema,
     },
     {
         name: 'get_random_post',
         description: 'Get a single random post. Free — no payment required.',
-        input_schema: { type: 'object' as const, properties: {} },
+        input_schema: emptySchema,
     },
     {
         name: 'get_all_quotes',
         description:
             'Get all available quotes. This is a PAID resource — costs 0.025 USDC via Stellar.',
-        input_schema: { type: 'object' as const, properties: {} },
+        input_schema: emptySchema,
     },
     {
         name: 'get_all_recipes',
         description:
             'Get all available recipes. This is a PAID resource — costs 0.025 USDC via Stellar.',
-        input_schema: { type: 'object' as const, properties: {} },
+        input_schema: emptySchema,
     },
     {
         name: 'get_all_posts',
         description:
             'Get all available posts. This is a PAID resource — costs 0.025 USDC via Stellar.',
-        input_schema: { type: 'object' as const, properties: {} },
+        input_schema: emptySchema,
     },
 ];
 
@@ -48,8 +58,27 @@ The payment happens automatically — you don't need to handle it. Just call the
 
 Keep responses concise and helpful.`;
 
-export const POST: RequestHandler = async ({ request }) => {
-    const { messages }: { messages: Anthropic.MessageParam[] } = await request.json();
+export const POST: RequestHandler = async ({ request, url }) => {
+    const origin = request.headers.get('origin');
+    if (!origin || origin !== url.origin) {
+        error(403, { message: 'Forbidden: requests must originate from the same domain' });
+    }
+
+    const contentLength = parseInt(request.headers.get('content-length') ?? '0', 10);
+    if (contentLength > MAX_BODY_BYTES) {
+        error(413, { message: `Request body too large (max ${MAX_BODY_BYTES} bytes)` });
+    }
+
+    const body = await request.text();
+    if (body.length > MAX_BODY_BYTES) {
+        error(413, { message: `Request body too large (max ${MAX_BODY_BYTES} bytes)` });
+    }
+
+    const { messages }: { messages: Anthropic.MessageParam[] } = JSON.parse(body);
+
+    if (!Array.isArray(messages) || messages.length === 0 || messages.length > MAX_MESSAGES) {
+        error(400, { message: `messages must be an array of 1-${MAX_MESSAGES} items` });
+    }
 
     const stream = client.messages.stream({
         model: 'claude-haiku-4-5',

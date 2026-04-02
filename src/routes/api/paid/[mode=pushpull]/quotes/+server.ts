@@ -1,11 +1,6 @@
 import type { RequestHandler } from './$types';
+import type { Quote } from '$lib/types/api';
 import { json } from '@sveltejs/kit';
-
-interface Quote {
-    id: number;
-    quote: string;
-    author: string;
-}
 
 const DUMMY_JSON_URL = 'https://dummyjson.com/quotes';
 

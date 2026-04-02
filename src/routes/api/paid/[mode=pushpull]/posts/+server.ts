@@ -1,18 +1,6 @@
 import type { RequestHandler } from './$types';
+import type { Post } from '$lib/types/api';
 import { json } from '@sveltejs/kit';
-
-interface Post {
-    id: number;
-    title: string;
-    body: string;
-    tags: string[];
-    reactions: {
-        likes: number;
-        dislikes: number;
-    };
-    views: number;
-    userId: number;
-}
 
 const DUMMY_JSON_URL = 'https://dummyjson.com/posts';
 

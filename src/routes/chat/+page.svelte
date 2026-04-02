@@ -6,6 +6,7 @@
     import { Mppx } from 'mppx/client';
     import { Receipt } from 'mppx';
     import { stellar } from '@stellar/mpp/charge/client';
+    import MppModeToggle from '$lib/components/ui/MppModeToggle.svelte';
 
     interface DisplayMessage {
         role: 'user' | 'assistant';
@@ -336,38 +337,7 @@
                 Stellar payments in real time.
             </p>
         </div>
-        <div class="flex items-center gap-3">
-            <span class="text-sm font-medium text-gray-700">Mode</span>
-            <button
-                onclick={() => (mppMode = mppMode === 'pull' ? 'push' : 'pull')}
-                class="relative inline-flex h-7 w-[5.5rem] shrink-0 cursor-pointer items-center rounded-full border border-gray-300 bg-gray-100 transition-colors"
-                role="switch"
-                aria-checked={mppMode === 'push'}
-            >
-                <span
-                    class="absolute left-0.5 h-6 w-10 rounded-full bg-indigo-600 transition-transform {mppMode ===
-                    'push'
-                        ? 'translate-x-[calc(100%-0.125rem)]'
-                        : ''}"
-                ></span>
-                <span
-                    class="relative z-10 w-1/2 text-center text-xs font-medium transition-colors {mppMode ===
-                    'pull'
-                        ? 'text-white'
-                        : 'text-gray-500'}"
-                >
-                    Pull
-                </span>
-                <span
-                    class="relative z-10 w-1/2 text-center text-xs font-medium transition-colors {mppMode ===
-                    'push'
-                        ? 'text-white'
-                        : 'text-gray-500'}"
-                >
-                    Push
-                </span>
-            </button>
-        </div>
+        <MppModeToggle bind:mode={mppMode} />
     </div>
 
     {#if !hasAccount}
