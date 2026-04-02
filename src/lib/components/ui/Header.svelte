@@ -7,6 +7,7 @@
         { href: '/', label: 'Home' },
         { href: '/free', label: 'Free API' },
         { href: '/mpp', label: 'Paid API' },
+        { href: '/chat', label: 'Agent Demo' },
     ] as const;
 </script>
 

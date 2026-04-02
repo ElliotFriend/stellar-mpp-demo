@@ -12,7 +12,7 @@
         </p>
     </div>
 
-    <div class="grid gap-6 sm:grid-cols-2">
+    <div class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         <a
             href={resolve('/free')}
             class="group block rounded-lg border border-gray-200 bg-white p-6 no-underline transition-shadow hover:shadow-md"
@@ -38,6 +38,20 @@
             <p class="mt-2 text-sm text-gray-500">
                 Request a paid resource and watch the MPP flow: 402 challenge, Stellar payment,
                 receipt, and data delivery.
+            </p>
+        </a>
+
+        <a
+            href={resolve('/chat')}
+            class="group block rounded-lg border border-gray-200 bg-white p-6 no-underline transition-shadow hover:shadow-md"
+        >
+            <div class="text-sm font-medium text-purple-600">Agent</div>
+            <h2 class="mt-1 text-lg font-semibold text-gray-900 group-hover:text-indigo-600">
+                AI Chat Demo
+            </h2>
+            <p class="mt-2 text-sm text-gray-500">
+                Chat with an AI agent that makes Stellar payments to fetch paid resources on your
+                behalf.
             </p>
         </a>
     </div>
