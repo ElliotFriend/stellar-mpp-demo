@@ -4,6 +4,8 @@
     import { page } from '$app/state';
     import { resolve } from '$app/paths';
 
+    import { user } from '$lib/state/UserState.svelte';
+
     let { children } = $props();
 
     const navLinks = [
@@ -38,16 +40,21 @@
                     </a>
                 {/each}
             </div>
-            <a
-                href={resolve('/account')}
-                class="ml-auto text-sm font-medium no-underline transition-colors {page.url.pathname.startsWith(
-                    '/account',
-                )
-                    ? 'text-indigo-600'
-                    : 'text-gray-500 hover:text-gray-900'}"
-            >
-                Account
-            </a>
+            <div class="ml-auto flex gap-6">
+                {#if user.publicKey}
+                    <span class="text-sm font-medium text-gray-500"><code>{user.publicKey.slice(0, 4)}...{user.publicKey.slice(user.publicKey.length - 4)}</code></span>
+                {/if}
+                <a
+                    href={resolve('/account')}
+                    class="text-sm font-medium no-underline transition-colors {page.url.pathname.startsWith(
+                        '/account',
+                    )
+                        ? 'text-indigo-600'
+                        : 'text-gray-500 hover:text-gray-900'}"
+                >
+                    Account
+                </a>
+            </div>
         </div>
     </nav>
 
