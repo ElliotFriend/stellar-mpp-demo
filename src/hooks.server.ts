@@ -47,7 +47,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 
             const result = await mppx.charge({
                 amount: '0.025',
-                description: 'Eff you, pay me!',
+                description: 'The Good Stuff',
             })(event.request);
 
             if (result.status === 402) {
