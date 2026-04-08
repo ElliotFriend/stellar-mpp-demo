@@ -1,5 +1,5 @@
 import type { RequestHandler } from './$types';
-import { Asset } from '@stellar/stellar-sdk';
+import { Asset, Operation } from '@stellar/stellar-sdk';
 import { Server } from '@stellar/stellar-sdk/rpc';
 import { error, json } from '@sveltejs/kit';
 
@@ -27,18 +27,29 @@ export const POST: RequestHandler = async ({ request, url }) => {
                 hash: response.txHash,
             });
         } else {
+            const usdcAsset = new Asset(
+                'USDC',
+                'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5',
+            );
+
             // build a trustline transaction
-            // const account = await server.getAccount(publicKey)
-            const tx = await makeTrustlineTransaction(
-                publicKey,
-                new Asset('USDC', 'GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5'),
-                server,
+            const builder = await makeTrustlineTransaction(publicKey, usdcAsset, server);
+
+            // add a path payment to the transaction, so the user gets some USDC
+            builder.addOperation(
+                Operation.pathPaymentStrictReceive({
+                    sendAsset: Asset.native(),
+                    sendMax: '10', // this is probably (hopefully?) way overkill
+                    destination: publicKey,
+                    destAsset: usdcAsset,
+                    destAmount: '5',
+                }),
             );
 
             // return the transaction for signing
             return json({
                 success: true,
-                txXdr: tx.toXDR(),
+                txXdr: builder.build().toXDR(),
             });
         }
     } catch (err: unknown) {

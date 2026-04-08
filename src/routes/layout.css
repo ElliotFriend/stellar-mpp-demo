@@ -1,3 +1,7 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/forms';
 @plugin '@tailwindcss/typography';
+
+code.code {
+    @apply mt-0.5 block rounded bg-gray-50 px-3 py-2 text-xs break-all
+}

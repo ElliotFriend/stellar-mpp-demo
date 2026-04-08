@@ -1,11 +1,11 @@
-import { Asset, Transaction, TransactionBuilder, Networks, Operation } from '@stellar/stellar-sdk';
+import { Asset, TransactionBuilder, Networks, Operation } from '@stellar/stellar-sdk';
 import { Server } from '@stellar/stellar-sdk/rpc';
 
 export async function makeTrustlineTransaction(
     publicKey: string,
     asset: Asset,
     server: Server,
-): Promise<Transaction> {
+): Promise<TransactionBuilder> {
     const account = await server.getAccount(publicKey);
     const tx = new TransactionBuilder(account, {
         fee: '1000',
@@ -16,8 +16,7 @@ export async function makeTrustlineTransaction(
                 asset,
             }),
         )
-        .setTimeout(60)
-        .build();
+        .setTimeout(60);
 
     return tx;
 }

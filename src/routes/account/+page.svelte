@@ -92,13 +92,13 @@
             <div class="space-y-2 text-sm">
                 <div>
                     <span class="text-gray-500">Public key</span>
-                    <code class="mt-0.5 block rounded bg-gray-50 px-3 py-2 text-xs break-all"
+                    <code class="code"
                         >{kp.publicKey()}</code
                     >
                 </div>
                 <div>
                     <span class="text-gray-500">Secret key</span>
-                    <code class="mt-0.5 block rounded bg-gray-50 px-3 py-2 text-xs break-all"
+                    <code class="code"
                         >{kp.secret()}</code
                     >
                 </div>
@@ -171,10 +171,11 @@
         <div
             class="space-y-2 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-800"
         >
-            <p class="font-semibold">One more step: Get testnet USDC</p>
+            <p class="font-semibold">One more step: Get (more) testnet USDC</p>
             <p>
-                Your account is funded and has a USDC trustline, but you still need USDC tokens to
-                make payments. Visit the Circle faucet to airdrop testnet USDC to your account:
+                Your account is funded, has a USDC trustline, and we've even used a path payment to
+                get you a small amount of USDC to start. You can still visit the official Circle
+                faucet to airdrop more testnet USDC to your account, if you want:
             </p>
             <a
                 href="https://faucet.circle.com/"
@@ -185,7 +186,7 @@
                 faucet.circle.com &rarr;
             </a>
             <p class="text-xs text-blue-600">
-                Select <strong>Stellar</strong> as the network and paste your public key.
+                Select <strong>Stellar Testnet</strong> as the network and paste your public key.
             </p>
         </div>
     {/if}
