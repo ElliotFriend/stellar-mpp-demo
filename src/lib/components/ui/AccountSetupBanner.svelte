@@ -8,13 +8,11 @@
         // Skip auto-setup for bots/crawlers that execute JS (e.g., Googlebot)
         if (
             navigator.webdriver ||
-            /bot|crawl|spider|slurp|facebookexternalhit|vercel|headlesschrome/i.test(
+            /bot|crawl|spider|slurp|facebookexternalhit|vercel/i.test(
                 navigator.userAgent,
             )
-        ) {
-            console.log("should skip the user.setup() function", navigator.webdriver ? "webdriver" : navigator.userAgent)
+        )
             return;
-        }
 
         if (!user.alreadySetUp) {
             user.setup();
