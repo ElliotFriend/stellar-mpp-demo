@@ -1,5 +1,4 @@
 <script lang="ts">
-    import { user } from '$lib/state/UserState.svelte';
     import { resolve } from '$app/paths';
 
     import type { Demo } from '$lib/types';
@@ -43,32 +42,6 @@
             contracts. Try the demos below to see MPP in action on the Stellar testnet.
         </p>
     </div>
-
-    {#if !user.publicKey}
-        <div class="rounded-lg border border-indigo-200 bg-indigo-50 p-5">
-            <h2 class="text-base font-semibold text-indigo-900">Get started</h2>
-            <p class="mt-1 text-sm text-indigo-800">
-                To try the paid demos, you'll need a Stellar testnet account with USDC. It only
-                takes a few seconds to set one up.
-            </p>
-            <a
-                href={resolve('/account')}
-                class="mt-3 inline-block rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white no-underline transition-colors hover:bg-indigo-700"
-            >
-                Set up your account
-            </a>
-            <p class="mt-3 text-sm text-indigo-700">
-                Or, start with the <a
-                    href={resolve('/free')}
-                    class="font-medium text-indigo-900 underline">Free API demo</a
-                > &mdash; no account needed.
-            </p>
-        </div>
-    {:else}
-        <div class="rounded-lg border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-            Your account is set up. Pick any demo below to get started.
-        </div>
-    {/if}
 
     <div>
         <h2 class="mb-4 text-lg font-semibold text-gray-900">Demos</h2>
