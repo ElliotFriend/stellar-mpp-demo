@@ -8,7 +8,7 @@
         // Skip auto-setup for bots/crawlers that execute JS (e.g., Googlebot)
         if (
             navigator.webdriver ||
-            /bot|crawl|spider|slurp|facebookexternalhit|vercel/i.test(
+            /bot|crawl|spider|slurp|facebookexternalhit|vercel|headlesschrome/i.test(
                 navigator.userAgent,
             )
         ) {
