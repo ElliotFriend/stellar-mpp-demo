@@ -59,7 +59,7 @@
         class="group block rounded-lg border border-gray-200 bg-white p-6 no-underline transition-shadow hover:shadow-md"
     >
         <div class={['text-sm font-medium', `text-${demo.titleColor}-600`]}>
-            Step {demo.num} ({demo.paid ? 'payment required' : 'no payment needed'})
+            Demo {demo.num} ({demo.paid ? 'paid' : 'free'})
         </div>
         <h3 class="mt-1 text-lg font-semibold text-gray-900 group-hover:text-indigo-600">
             {demo.title}
