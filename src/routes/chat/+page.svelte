@@ -303,6 +303,57 @@
         }
     }
 
+    // Speech-to-text via Web Speech API
+    let isListening = $state(false);
+    let recognition: SpeechRecognition | null = $state(null);
+
+    function toggleListening() {
+        if (isListening && recognition) {
+            recognition.stop();
+            return;
+        }
+
+        const SpeechRecognition = window.SpeechRecognition ?? window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return;
+
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = true;
+        recognition.lang = 'en-US';
+
+        let finalTranscript = inputText;
+
+        recognition.onresult = (event: SpeechRecognitionEvent) => {
+            let interim = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalTranscript += (finalTranscript ? ' ' : '') + transcript;
+                } else {
+                    interim = transcript;
+                }
+            }
+            inputText = finalTranscript + (interim ? ' ' + interim : '');
+        };
+
+        recognition.onend = () => {
+            isListening = false;
+            inputText = finalTranscript;
+        };
+
+        recognition.onerror = () => {
+            isListening = false;
+        };
+
+        recognition.start();
+        isListening = true;
+    }
+
+    let hasSpeechSupport = $derived(
+        typeof window !== 'undefined' &&
+            !!(window.SpeechRecognition ?? window.webkitSpeechRecognition),
+    );
+
     const eventStyles: Record<ToolEvent['kind'], string> = {
         calling: 'text-gray-500',
         challenge: 'text-amber-400',
@@ -418,6 +469,32 @@
                 disabled={isStreaming}
                 class="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 disabled:opacity-50"
             />
+            {#if hasSpeechSupport}
+                <button
+                    onclick={toggleListening}
+                    disabled={isStreaming}
+                    class="rounded-lg border px-3 py-2 text-sm transition-colors disabled:cursor-not-allowed disabled:opacity-50
+                    {isListening
+                        ? 'border-red-300 bg-red-50 text-red-600 hover:bg-red-100'
+                        : 'border-gray-300 text-gray-500 hover:bg-gray-50 hover:text-gray-700'}"
+                    title={isListening ? 'Stop listening' : 'Voice input'}
+                >
+                    <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        class="h-4 w-4 {isListening ? 'animate-pulse' : ''}"
+                    >
+                        <path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3Z" />
+                        <path d="M19 10v2a7 7 0 0 1-14 0v-2" />
+                        <line x1="12" x2="12" y1="19" y2="22" />
+                    </svg>
+                </button>
+            {/if}
             <button
                 onclick={handleSend}
                 disabled={isStreaming || !inputText.trim()}
