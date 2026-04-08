@@ -4,7 +4,8 @@
     import { Mppx } from 'mppx/client';
     import { Receipt } from 'mppx';
     import { stellar } from '@stellar/mpp/charge/client';
-    import { resolve } from '$app/paths';
+
+    import AccountRequired from '$lib/components/AccountRequired.svelte';
     import MppModeToggle from '$lib/components/ui/MppModeToggle.svelte';
 
     let mppMode = $state<'pull' | 'push'>('pull');
@@ -131,23 +132,21 @@
 </script>
 
 <div class="space-y-8">
-    <div>
-        <div class="text-sm font-medium text-amber-600">Paid Endpoint</div>
-        <h1 class="text-2xl font-bold tracking-tight">Paid API Demo</h1>
-        <p class="mt-1 text-sm text-gray-500">
-            Request a paid resource and watch the MPP protocol in action. The server returns HTTP
-            402, the client signs a Stellar payment, and the server settles it before delivering the
-            data.
-        </p>
+    <div class="mb-4 flex items-start justify-between">
+        <div>
+            <div class="text-sm font-medium text-amber-600">Paid Endpoint</div>
+            <h1 class="text-2xl font-bold tracking-tight">Paid API Demo</h1>
+            <p class="mt-1 text-sm text-gray-500">
+                Request a paid resource and watch the MPP protocol in action. The server returns
+                HTTP 402, the client signs a Stellar payment, and the server settles it before
+                delivering the data.
+            </p>
+        </div>
+        <MppModeToggle bind:mode={mppMode} />
     </div>
 
     {#if !hasAccount}
-        <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            You need a funded Stellar account with USDC to use this demo.
-            <a href={resolve('/account')} class="font-medium text-amber-900 underline"
-                >Set up your account</a
-            > first.
-        </div>
+        <AccountRequired />
     {:else}
         <div class="flex flex-wrap items-center gap-4">
             <div class="flex items-center gap-2">
@@ -164,8 +163,6 @@
                     <option value="posts">Posts</option>
                 </select>
             </div>
-
-            <MppModeToggle bind:mode={mppMode} />
 
             {#if mppMode === 'pull'}
                 <label

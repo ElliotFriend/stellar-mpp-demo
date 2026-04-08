@@ -92,15 +92,11 @@
             <div class="space-y-2 text-sm">
                 <div>
                     <span class="text-gray-500">Public key</span>
-                    <code class="code"
-                        >{kp.publicKey()}</code
-                    >
+                    <code class="code">{kp.publicKey()}</code>
                 </div>
                 <div>
                     <span class="text-gray-500">Secret key</span>
-                    <code class="code"
-                        >{kp.secret()}</code
-                    >
+                    <code class="code">{kp.secret()}</code>
                 </div>
             </div>
         </div>

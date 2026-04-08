@@ -1,11 +1,12 @@
 <script lang="ts">
     import { user } from '$lib/state/UserState.svelte';
-    import { resolve } from '$app/paths';
     import { Keypair } from '@stellar/stellar-sdk';
     import Markdown from '@humanspeak/svelte-markdown';
     import { Mppx } from 'mppx/client';
     import { Receipt } from 'mppx';
     import { stellar } from '@stellar/mpp/charge/client';
+
+    import AccountRequired from '$lib/components/AccountRequired.svelte';
     import MppModeToggle from '$lib/components/ui/MppModeToggle.svelte';
 
     interface DisplayMessage {
@@ -341,12 +342,7 @@
     </div>
 
     {#if !hasAccount}
-        <div class="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
-            You need a funded Stellar account with USDC to use paid tools.
-            <a href={resolve('/account')} class="font-medium text-amber-900 underline"
-                >Set up your account</a
-            > first.
-        </div>
+        <AccountRequired />
     {:else}
         <div
             bind:this={chatContainer}
