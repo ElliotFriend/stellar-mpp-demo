@@ -65,16 +65,19 @@
         }
     }
 
-    async function executeTool(toolName: string): Promise<{ result: string; events: ToolEvent[] }> {
+    async function executeTool(
+        toolName: string,
+        events: ToolEvent[],
+    ): Promise<string> {
         const endpoint = getToolEndpoint(toolName);
-        const events: ToolEvent[] = $state([]);
 
         if (!endpoint) {
             events.push({ kind: 'error', toolName, detail: 'Unknown tool' });
-            return { result: JSON.stringify({ error: 'Unknown tool' }), events };
+            return JSON.stringify({ error: 'Unknown tool' });
         }
 
         events.push({ kind: 'calling', toolName, detail: endpoint.url });
+        scrollToBottom();
 
         try {
             let res: Response;
@@ -96,6 +99,7 @@
                                             toolName,
                                             detail: `${event.amount} USDC`,
                                         });
+                                        scrollToBottom();
                                         return;
                                     case 'signing':
                                         events.push({
@@ -103,6 +107,7 @@
                                             toolName,
                                             detail: 'signing with keypair',
                                         });
+                                        scrollToBottom();
                                         break;
                                     case 'signed':
                                         events.push({
@@ -110,6 +115,7 @@
                                             toolName,
                                             detail: `signed tx: ${event.transaction.slice(0, 18)}...${event.transaction.slice(event.transaction.length - 18)}`,
                                         });
+                                        scrollToBottom();
                                         return;
                                     case 'confirming':
                                         events.push({
@@ -117,6 +123,7 @@
                                             toolName,
                                             detail: 'waiting for blockchain settlement',
                                         });
+                                        scrollToBottom();
                                         return;
                                     default:
                                         return;
@@ -141,8 +148,10 @@
                                 text: 'View on Stellar Expert',
                             },
                         });
+                        scrollToBottom();
                     } catch {
                         events.push({ kind: 'error', toolName, detail: `HTTP ${res.status}` });
+                        scrollToBottom();
                     }
                 }
             } else {
@@ -155,18 +164,21 @@
                     toolName,
                     detail: `HTTP ${res.status}`,
                 });
-                return { result: JSON.stringify({ error: `HTTP ${res.status}` }), events };
+                scrollToBottom();
+                return JSON.stringify({ error: `HTTP ${res.status}` });
             }
 
             const data = await res.json();
             if (!endpoint.paid) {
                 events.push({ kind: 'done', toolName });
+                scrollToBottom();
             }
-            return { result: JSON.stringify(data), events };
+            return JSON.stringify(data);
         } catch (err) {
             const msg = err instanceof Error ? err.message : String(err);
             events.push({ kind: 'error', toolName, detail: msg });
-            return { result: JSON.stringify({ error: msg }), events };
+            scrollToBottom();
+            return JSON.stringify({ error: msg });
         }
     }
 
@@ -255,13 +267,13 @@
             );
 
             const currentDisplay = displayMessages[displayMessages.length - 1];
+            if (currentDisplay && !currentDisplay.toolEvents) {
+                currentDisplay.toolEvents = [];
+            }
             const toolResults: { type: string; tool_use_id: string; content: string }[] = [];
 
             for (const tool of toolBlocks) {
-                const { result, events } = await executeTool(tool.name);
-                if (currentDisplay) {
-                    currentDisplay.toolEvents = [...(currentDisplay.toolEvents ?? []), ...events];
-                }
+                const result = await executeTool(tool.name, currentDisplay.toolEvents!);
                 scrollToBottom();
                 toolResults.push({
                     type: 'tool_result',
@@ -379,17 +391,19 @@
     };
 </script>
 
-<div class="flex flex-col" style="height: calc(100vh - 8.5rem);">
-    <div class="mb-4 flex items-start justify-between">
-        <div>
-            <div class="text-sm font-medium text-purple-600">Agent Demo</div>
-            <h1 class="text-2xl font-bold tracking-tight">AI Chat</h1>
-            <p class="mt-1 text-sm text-gray-500">
-                Chat with an AI that can fetch resources from both free and paid APIs. Watch it make
-                Stellar payments in real time.
-            </p>
+<div class="flex flex-1 flex-col">
+    <div class="mb-4">
+        <div class="flex items-start justify-between">
+            <div>
+                <div class="text-sm font-medium text-purple-600">Agent Demo</div>
+                <h1 class="text-2xl font-bold tracking-tight">AI Chat</h1>
+            </div>
+            <MppModeToggle bind:mode={mppMode} />
         </div>
-        <MppModeToggle bind:mode={mppMode} />
+        <p class="mt-1 text-sm text-gray-500">
+            Chat with an AI that can fetch resources from both free and paid APIs. Watch it make
+            Stellar payments in real time.
+        </p>
     </div>
 
     {#if !hasAccount}

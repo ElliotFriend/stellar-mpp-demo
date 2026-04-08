@@ -15,7 +15,7 @@
     <Header />
     <AccountSetupBanner />
 
-    <main class="mx-auto max-w-4xl flex-1 px-6 py-10">
+    <main class="mx-auto flex w-full max-w-4xl flex-1 flex-col px-6 py-10">
         {@render children()}
     </main>
 

@@ -43,7 +43,7 @@
 </script>
 
 <div class="space-y-8">
-    <div>
+    <div class="mb-4">
         <div class="text-sm font-medium text-green-600">Free Endpoint</div>
         <h1 class="text-2xl font-bold tracking-tight">Free API Demo</h1>
         <p class="mt-1 text-sm text-gray-500">
