@@ -2,7 +2,8 @@
     import { user } from '$lib/state/UserState.svelte';
     import { onMount } from 'svelte';
 
-    let dismissed = $state(false);
+    let dismissed: boolean = $state(false);
+    let isBot: boolean = $state(false)
 
     onMount(() => {
         // Skip auto-setup for bots/crawlers that execute JS (e.g., Googlebot)
@@ -11,8 +12,10 @@
             /bot|crawl|spider|slurp|facebookexternalhit|vercel/i.test(
                 navigator.userAgent,
             )
-        )
+        ) {
+            isBot = true
             return;
+        }
 
         if (!user.alreadySetUp) {
             user.setup();
@@ -20,7 +23,7 @@
     });
 
     // Hide the banner entirely if setup was already done on a prior visit and user dismissed it
-    let visible = $derived(!dismissed && !user.alreadySetUp);
+    let visible = $derived(isBot || (!dismissed && !user.alreadySetUp));
 </script>
 
 {#if visible}
