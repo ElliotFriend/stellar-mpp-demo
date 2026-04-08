@@ -141,9 +141,9 @@
             <MppModeToggle bind:mode={mppMode} />
         </div>
         <p class="mt-1 text-sm text-gray-500">
-            Request a paid resource and watch the MPP protocol in action. The server returns
-            HTTP 402, the client signs a Stellar payment, and the server settles it before
-            delivering the data.
+            Request a paid resource and watch the MPP protocol in action. The server returns HTTP
+            402, the client signs a Stellar payment, and the server settles it before delivering the
+            data.
         </p>
     </div>
 

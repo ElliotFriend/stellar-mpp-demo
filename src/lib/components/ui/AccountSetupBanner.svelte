@@ -1,19 +1,19 @@
 <script lang="ts">
     import { user } from '$lib/state/UserState.svelte';
     import { onMount } from 'svelte';
+    import { browser } from '$app/environment';
 
     let dismissed: boolean = $state(false);
-    let isBot: boolean = $state(false)
+    let isBot: boolean = $state(false);
 
     onMount(() => {
         // Skip auto-setup for bots/crawlers that execute JS (e.g., Googlebot)
         if (
+            !browser ||
             navigator.webdriver ||
-            /bot|crawl|spider|slurp|facebookexternalhit|vercel/i.test(
-                navigator.userAgent,
-            )
+            /bot|crawl|spider|slurp|facebookexternalhit|vercel/i.test(navigator.userAgent)
         ) {
-            isBot = true
+            isBot = true;
             return;
         }
 

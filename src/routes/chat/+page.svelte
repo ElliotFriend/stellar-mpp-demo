@@ -65,10 +65,7 @@
         }
     }
 
-    async function executeTool(
-        toolName: string,
-        events: ToolEvent[],
-    ): Promise<string> {
+    async function executeTool(toolName: string, events: ToolEvent[]): Promise<string> {
         const endpoint = getToolEndpoint(toolName);
 
         if (!endpoint) {
