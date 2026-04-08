@@ -11,8 +11,10 @@
             /bot|crawl|spider|slurp|facebookexternalhit|vercel-favicon/i.test(
                 navigator.userAgent,
             )
-        )
+        ) {
+            console.log("should skip the user.setup() function", navigator.webdriver ? "webdriver" : navigator.userAgent)
             return;
+        }
 
         if (!user.alreadySetUp) {
             user.setup();
