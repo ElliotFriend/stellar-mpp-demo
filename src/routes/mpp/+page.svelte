@@ -34,6 +34,11 @@
     let isLoading = $state(false);
     let hasAccount = $derived(!!user.secretKey);
 
+    const PAGE_SIZE = 6;
+    let currentPage = $state(0);
+    let totalPages = $derived(Math.ceil(resultData.length / PAGE_SIZE));
+    let pagedData = $derived(resultData.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE));
+
     function addStep(
         kind: StepKind,
         label: string,
@@ -46,6 +51,7 @@
     async function makeRequest() {
         flowSteps = [];
         resultData = [];
+        currentPage = 0;
         isLoading = true;
 
         if (!user.secretKey) return;
@@ -244,7 +250,7 @@
                 </h2>
                 <div class="grid gap-3">
                     {#if endpoint === 'quotes'}
-                        {#each resultData.slice(0, 6) as item, i (i)}
+                        {#each pagedData as item, i (currentPage * PAGE_SIZE + i)}
                             {@const quote = item as { id: number; quote: string; author: string }}
                             <div class="rounded-lg border border-gray-200 bg-white p-4">
                                 <blockquote class="text-sm text-gray-700 italic">
@@ -256,7 +262,7 @@
                             </div>
                         {/each}
                     {:else if endpoint === 'recipes'}
-                        {#each resultData.slice(0, 4) as item, i (i)}
+                        {#each pagedData as item, i (currentPage * PAGE_SIZE + i)}
                             {@const recipe = item as {
                                 id: number;
                                 name: string;
@@ -293,7 +299,7 @@
                             </div>
                         {/each}
                     {:else}
-                        {#each resultData.slice(0, 6) as item, i (i)}
+                        {#each pagedData as item, i (currentPage * PAGE_SIZE + i)}
                             {@const post = item as {
                                 id: number;
                                 title: string;
@@ -314,12 +320,28 @@
                             </div>
                         {/each}
                     {/if}
-                    {#if resultData.length > 6}
-                        <p class="text-xs text-gray-400">
-                            Showing 6 of {resultData.length} items
-                        </p>
-                    {/if}
                 </div>
+                {#if totalPages > 1}
+                    <div class="flex items-center justify-between pt-2">
+                        <button
+                            onclick={() => currentPage--}
+                            disabled={currentPage === 0}
+                            class="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            &larr; Previous
+                        </button>
+                        <span class="text-sm text-gray-500">
+                            Page {currentPage + 1} of {totalPages}
+                        </span>
+                        <button
+                            onclick={() => currentPage++}
+                            disabled={currentPage >= totalPages - 1}
+                            class="rounded-md border border-gray-300 px-3 py-1.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 disabled:cursor-not-allowed disabled:opacity-40"
+                        >
+                            Next &rarr;
+                        </button>
+                    </div>
+                {/if}
             </div>
         {/if}
     {/if}
