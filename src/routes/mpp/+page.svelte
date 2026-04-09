@@ -37,7 +37,9 @@
     const PAGE_SIZE = 6;
     let currentPage = $state(0);
     let totalPages = $derived(Math.ceil(resultData.length / PAGE_SIZE));
-    let pagedData = $derived(resultData.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE));
+    let pagedData = $derived(
+        resultData.slice(currentPage * PAGE_SIZE, (currentPage + 1) * PAGE_SIZE),
+    );
 
     function addStep(
         kind: StepKind,

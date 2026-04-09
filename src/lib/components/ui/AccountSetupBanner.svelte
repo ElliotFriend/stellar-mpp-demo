@@ -68,7 +68,7 @@
                     ></span>
                     <span>
                         Setting up your testnet account...
-                        {#each user.steps as step (step.label)}
+                        {#each Object.values(user.steps) as step (step.label)}
                             {#if step.status === 'active'}
                                 <span class="text-gray-500">{step.detail}</span>
                             {/if}
